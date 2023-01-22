@@ -1,22 +1,21 @@
 import * as THREE from 'three';
 
-import { Camera, Render, Sizes, MouseTracking, Plane, Debug } from './Utils'
+import { Camera, Render, Sizes, Mouse, Plane, Debug,Time } from './Utils'
 
 export default class Webgl {
 	constructor() {
 		window.webgl = this;
 
     this.sizes = new Sizes();
+    this.time = new Time();
     this.canvas = document.querySelector('canvas');
 		this.htmlImage = document.querySelector('img');
-    
+
     this.initWebgl();
     
-    this.mouseTracking = new MouseTracking(this);
-		this.debug = new Debug(this);
-
     this.onResizeWindow();
     this.update();
+		this.debug = new Debug(this);
 	}
 
   initWebgl() {
@@ -24,8 +23,10 @@ export default class Webgl {
     this.camera = new Camera(this, { activeOrbitControls: true });
     
     this.plane = new Plane(this, { htmlImage: this.htmlImage });
-
+    
     this.render = new Render(this);
+
+    this.mouse = new Mouse(this);
   }
 
   onResizeWindow() {
@@ -56,7 +57,7 @@ export default class Webgl {
 
     this.plane.update();
 
-    this.mouseTracking.update();
+    this.mouse.update();
     
     this.render.onUpdate();
   }

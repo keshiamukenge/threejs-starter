@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default class MouseTracking {
+export default class Mouse {
 	constructor(webgl) {
 		this.webgl = webgl;
 
@@ -9,7 +9,6 @@ export default class MouseTracking {
     this.render = this.webgl.render;
 
     this.setInstances();
-    this.update();
 
     window.addEventListener('mousemove', (event) => {
       this.onMouseMove(event);
