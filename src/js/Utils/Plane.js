@@ -7,6 +7,7 @@ export default class Plane {
 		this.scene = this.webgl.scene;
 		this.camera = this.webgl.camera;
 		this.sizes = this.webgl.sizes;
+    this.time = this.webgl.time;
 
     this.imageElement = htmlImage;
     this.image = {
@@ -26,7 +27,44 @@ export default class Plane {
 
   setupPlane() {
     this.geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
-    this.material = new THREE.MeshBasicMaterial({ map: this.texture, side: THREE.DoubleSide })
+    this.material = new THREE.ShaderMaterial({
+      antialias: true,
+      side: THREE.DoubleSide,
+      uniforms: {
+        uTexture: {
+          value: this.texture || null
+        },
+        uMouse: {
+          value: new THREE.Vector2(0.0, 0.0)
+        },
+        uTime: {
+          value: 0.0
+        },
+      },
+      vertexShader: `
+        uniform vec2 uMouse;
+        uniform float uTime;
+
+        varying vec2 vUv;
+        
+        void main() {
+          vUv = uv;
+
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+
+        varying vec2 vUv;
+ 
+        void main() {
+          vec4 texture = texture2D(uTexture, vUv);
+
+          gl_FragColor = vec4(texture);
+        }
+      `
+    })
     this.instance = new THREE.Mesh(this.geometry, this.material);
     this.instance.scale.set(this.image.width, this.image.height, 1);
 		this.instanceOffset = this.instance.scale.y / 2;
@@ -60,8 +98,11 @@ export default class Plane {
 	update() {
 		this.updateImagePosition();
 		this.updatePlanePosition();
-
+    
 		this.texture.needsUpdate = true;
+
+    this.instance.material.uniforms.uMouse.value = this.webgl.mouse.coordinates;
+    this.instance.material.uniforms.uTime.value = this.time.elapsed;
 	}
 
 	updateSize() {
