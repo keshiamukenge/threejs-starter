@@ -1,4 +1,5 @@
 import Webgl from '../src/js/Webgl'
 import './scss/main.scss'
 
-new Webgl();
+// eslint-disable-next-line no-new
+new Webgl()
