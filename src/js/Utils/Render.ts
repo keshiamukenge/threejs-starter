@@ -9,8 +9,10 @@ export default class Render {
   constructor () {
     this.webgl = new Webgl()
 
+    if (this.webgl.canvas === null) return
+
     this.instance = new THREE.WebGLRenderer({
-      canvas: this.webgl.canvas as HTMLCanvasElement | undefined,
+      canvas: this.webgl.canvas,
       antialias: true,
       alpha: false
     })
