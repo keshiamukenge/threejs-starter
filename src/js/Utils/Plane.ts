@@ -1,32 +1,36 @@
 import * as THREE from 'three'
 
 import Webgl from '../Webgl'
-
-type IsHtmlImageElement = HTMLImageElement | undefined | null
+import { fragmentShader } from './shaders/fragmentShader'
+import { vertexShader } from './shaders/vertexShader'
 
 export default class Plane {
   webgl: Webgl
-  imageElement: IsHtmlImageElement
+  imageElement: HTMLImageElement
   image: {
-    element: IsHtmlImageElement
+    element: HTMLImageElement
     src: string
     width: number
     height: number
     aspect: number
     top: number
     left: number
+    naturalWidth: number
+    naturalHeight: number
   }
 
   texture: THREE.Texture
+  textureIsLoaded: boolean
   geometry: THREE.PlaneGeometry
   material: THREE.ShaderMaterial
   instance: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   instanceOffset: number
 
-  constructor (htmlImage: IsHtmlImageElement) {
+  constructor (htmlImage: HTMLImageElement) {
+    this.textureIsLoaded = false
     this.webgl = new Webgl()
 
-    if (htmlImage == null) return
+    if (htmlImage === null) return
 
     this.imageElement = htmlImage
 
@@ -37,16 +41,19 @@ export default class Plane {
       height: this.imageElement.getBoundingClientRect().height,
       aspect: this.imageElement.offsetWidth / this.imageElement.offsetHeight,
       top: this.imageElement.getBoundingClientRect().top,
-      left: this.imageElement.getBoundingClientRect().left
+      left: this.imageElement.getBoundingClientRect().left,
+      naturalWidth: this.imageElement.naturalWidth,
+      naturalHeight: this.imageElement.naturalHeight
     }
 
-    this.texture = new THREE.TextureLoader().load(this.image.src)
-
-    this.setupPlane()
+    this.texture = new THREE.TextureLoader().load(this.image.src, () => {
+      this.setupPlane()
+      this.textureIsLoaded = true
+    })
   }
 
   private setupPlane (): void {
-    this.geometry = new THREE.PlaneGeometry(1, 1, 100, 100)
+    this.geometry = new THREE.PlaneGeometry(1, 1, 30, 30)
     this.material = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
       uniforms: {
@@ -58,31 +65,16 @@ export default class Plane {
         },
         uTime: {
           value: 0.0
+        },
+        uPlaneSize: {
+          value: new THREE.Vector2(this.image.width, this.image.height)
+        },
+        uImageSize: {
+          value: new THREE.Vector2(this.image.naturalWidth, this.image.naturalHeight)
         }
       },
-      vertexShader: `
-        uniform vec2 uMouse;
-        uniform float uTime;
-
-        varying vec2 vUv;
-        
-        void main() {
-          vUv = uv;
-
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D uTexture;
-
-        varying vec2 vUv;
- 
-        void main() {
-          vec4 texture = texture2D(uTexture, vUv);
-
-          gl_FragColor = vec4(texture);
-        }
-      `
+      vertexShader,
+      fragmentShader
     })
     this.instance = new THREE.Mesh(this.geometry, this.material)
     this.instance.scale.set(this.image.width, this.image.height, 1)
@@ -108,6 +100,7 @@ export default class Plane {
 
   public updatePlaneSize (): void {
     this.instance.scale.set(this.image.width, this.image.height, 1)
+    this.material.uniforms.uPlaneSize.value = new THREE.Vector2(this.image.width, this.image.height)
   }
 
   public updatePlanePosition (): void {
@@ -119,6 +112,8 @@ export default class Plane {
   }
 
   public updatePlane (): void {
+    if (!this.textureIsLoaded) return
+
     this.updateImagePosition()
     this.updatePlanePosition()
 
@@ -129,7 +124,16 @@ export default class Plane {
   }
 
   public updateSize (): void {
+    if (!this.textureIsLoaded) return
+
     this.updatePlaneSize()
     this.updateImageSize()
+  }
+
+  public rotate (): void {
+    if (!this.textureIsLoaded) return
+
+    this.instance.rotation.x += 0.01
+    this.instance.rotation.y += 0.01
   }
 }
