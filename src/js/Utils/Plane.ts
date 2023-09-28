@@ -84,7 +84,7 @@ export default class Plane {
   }
 
   public updateImageSize (): void {
-    if (this.imageElement == null) return
+    if (this.imageElement === null) return
 
     this.image.width = this.imageElement.getBoundingClientRect().width
     this.image.height = this.imageElement.getBoundingClientRect().height
@@ -92,7 +92,7 @@ export default class Plane {
   }
 
   public updateImagePosition (): void {
-    if (this.imageElement == null) return
+    if (this.imageElement === null) return
 
     this.image.top = -this.imageElement.getBoundingClientRect().top
     this.image.left = this.imageElement.getBoundingClientRect().left
