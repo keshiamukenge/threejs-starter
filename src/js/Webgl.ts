@@ -15,8 +15,8 @@ let instance: Webgl | null = null
 export default class Webgl {
   sizes: Sizes
   time: Time
-  canvas: HTMLCanvasElement | undefined
-  htmlImage: HTMLImageElement | undefined
+  canvas: HTMLCanvasElement | null
+  htmlImage: HTMLImageElement | null
   camera: Camera
   scene: THREE.Scene
   plane: Plane
@@ -37,8 +37,8 @@ export default class Webgl {
 
     this.sizes = new Sizes()
     this.time = new Time()
-    this.canvas = document.querySelector('canvas') === null ? undefined : document.querySelector('canvas') as HTMLCanvasElement | undefined
-    this.htmlImage = document.querySelector('img') === null ? undefined : document.querySelector('img') as HTMLImageElement | undefined
+    this.canvas = document.querySelector('canvas')
+    this.htmlImage = document.querySelector('img')
     this.initWebgl()
     this.onResizeWindow()
 
@@ -48,6 +48,8 @@ export default class Webgl {
   }
 
   private initWebgl (): void {
+    if (this.htmlImage === null) return
+
     this.scene = new THREE.Scene()
     this.camera = new Camera(true)
 
@@ -63,23 +65,17 @@ export default class Webgl {
       this.sizes.height = window.innerHeight
 
       this.plane.updateSize()
-
       this.camera.updateCamera()
-
       this.render.onResize()
     })
   }
 
   private update (): void {
-    window.requestAnimationFrame(() => { this.update() })
+    window.requestAnimationFrame(this.update.bind(this))
 
-    this.plane.instance.rotation.x += 0.01
-    this.plane.instance.rotation.y += 0.01
-
+    this.plane.rotate()
     this.plane.updatePlane()
-
     this.mouse.updateMouse()
-
     this.render.onUpdate()
   }
 }

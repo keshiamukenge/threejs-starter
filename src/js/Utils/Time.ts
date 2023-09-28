@@ -19,6 +19,6 @@ export default class Time {
     this.current = currentTime
     this.elapsed = this.current - this.start
 
-    window.requestAnimationFrame(() => { this.tick() })
+    window.requestAnimationFrame(this.tick.bind(this))
   }
 }
