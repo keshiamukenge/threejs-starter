@@ -1,6 +1,9 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"strictPropertyInitialization": false
+		"strictPropertyInitialization": false,
+		"types": [
+      "vite-plugin-glsl/ext"
+    ]
 	}
 }

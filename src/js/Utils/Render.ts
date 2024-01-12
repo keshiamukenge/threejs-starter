@@ -21,7 +21,7 @@ export default class Render {
     this.instance.setPixelRatio(this.webgl.sizes.pixelRatio)
   }
 
-  public onResize (): void {
+  public resize (): void {
     this.instance.setSize(this.webgl.sizes.width, this.webgl.sizes.height)
     this.instance.setPixelRatio(this.webgl.sizes.pixelRatio)
   }
