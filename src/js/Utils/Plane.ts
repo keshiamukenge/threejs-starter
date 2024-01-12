@@ -1,9 +1,8 @@
 import * as THREE from 'three'
 
 import Webgl from '../Webgl'
-import { fragmentShader } from './shaders/fragmentShader'
-import { vertexShader } from './shaders/vertexShader'
-
+import fragmentShader from './shaders/fragment.frag'
+import vertexShader from './shaders/vertex.vert'
 export default class Plane {
   webgl: Webgl
   imageElement: HTMLImageElement
@@ -111,19 +110,7 @@ export default class Plane {
     )
   }
 
-  public updatePlane (): void {
-    if (!this.textureIsLoaded) return
-
-    this.updateImagePosition()
-    this.updatePlanePosition()
-
-    this.texture.needsUpdate = true
-
-    this.instance.material.uniforms.uMouse.value = this.webgl.mouse.coordinates
-    this.instance.material.uniforms.uTime.value = this.webgl.time.elapsed
-  }
-
-  public updateSize (): void {
+  public resize (): void {
     if (!this.textureIsLoaded) return
 
     this.updatePlaneSize()
@@ -135,5 +122,17 @@ export default class Plane {
 
     this.instance.rotation.x += 0.01
     this.instance.rotation.y += 0.01
+  }
+
+  public update (): void {
+    if (!this.textureIsLoaded) return
+
+    this.updateImagePosition()
+    this.updatePlanePosition()
+
+    this.instance.material.uniforms.uMouse.value = this.webgl.mouse.coordinates
+    this.instance.material.uniforms.uTime.value = this.webgl.time.elapsed
+
+    this.rotate()
   }
 }

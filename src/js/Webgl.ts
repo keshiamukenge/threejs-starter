@@ -40,7 +40,7 @@ export default class Webgl {
     this.canvas = document.querySelector('canvas')
     this.htmlImage = document.querySelector('img')
     this.initWebgl()
-    this.onResizeWindow()
+    this.addEventsListeners()
 
     this.update()
 
@@ -59,22 +59,23 @@ export default class Webgl {
     this.mouse = new Mouse()
   }
 
-  private onResizeWindow (): void {
-    window.addEventListener('resize', () => {
-      this.sizes.width = window.innerWidth
-      this.sizes.height = window.innerHeight
+  private onResize (): void {
+    this.sizes.width = window.innerWidth
+    this.sizes.height = window.innerHeight
 
-      this.plane.updateSize()
-      this.camera.updateCamera()
-      this.render.onResize()
-    })
+    this.plane.resize()
+    this.camera.updateCamera()
+    this.render.resize()
+  }
+
+  private addEventsListeners (): void {
+    window.addEventListener('resize', this.onResize.bind(this))
   }
 
   private update (): void {
     window.requestAnimationFrame(this.update.bind(this))
 
-    this.plane.rotate()
-    this.plane.updatePlane()
+    this.plane.update()
     this.mouse.updateMouse()
     this.render.onUpdate()
   }
